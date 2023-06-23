@@ -6,15 +6,19 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Stack,
-  VStack
+  VStack,
+  useColorMode
 } from 'native-base';
 import { Platform } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 const RegisterScreen = () => {
+  const { colorMode, toggleColorMode } = useColorMode();
+
   return (
     <KeyboardAvoidingView
       flex={1}
+      bg={colorMode === 'light' ? 'warmGray.50' : 'coolGray.800'}
       mt="10%"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
