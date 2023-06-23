@@ -13,7 +13,11 @@ import {
 import { Platform } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-const LoginScreen = () => {
+interface Props {
+  navigation: any;
+}
+
+const LoginScreen = (props: Props) => {
   return (
     <KeyboardAvoidingView
       flex={1}
@@ -31,7 +35,12 @@ const LoginScreen = () => {
             <Heading>SocialMedia</Heading>
             <View mt={10}>
               <Heading fontSize={17}>Inicia sesión con tus datos</Heading>
-              <Heading fontSize={17} underline textAlign="center">
+              <Heading
+                fontSize={17}
+                underline
+                textAlign="center"
+                onPress={() => props.navigation.navigate('Register')}
+              >
                 o crea una nueva cuenta
               </Heading>
             </View>
@@ -42,38 +51,6 @@ const LoginScreen = () => {
                   size="lg"
                   variant="filled"
                   placeholder="Nombre de usuario"
-                />
-              </FormControl>
-              <FormControl>
-                <Input
-                  type="password"
-                  size="lg"
-                  variant="filled"
-                  placeholder="Contraseña"
-                />
-              </FormControl>
-              <FormControl>
-                <Input
-                  type="password"
-                  size="lg"
-                  variant="filled"
-                  placeholder="Contraseña"
-                />
-              </FormControl>
-              <FormControl>
-                <Input
-                  type="password"
-                  size="lg"
-                  variant="filled"
-                  placeholder="Contraseña"
-                />
-              </FormControl>
-              <FormControl>
-                <Input
-                  type="password"
-                  size="lg"
-                  variant="filled"
-                  placeholder="Contraseña"
                 />
               </FormControl>
               <FormControl>
