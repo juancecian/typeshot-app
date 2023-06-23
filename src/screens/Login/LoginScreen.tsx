@@ -25,7 +25,7 @@ const LoginScreen = (props: Props) => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
-      <Animated.View entering={FadeIn} style={{ flex: 1 }}>
+      <Animated.View entering={FadeIn.duration(1000)} style={{ flex: 1 }}>
         <ScrollView
           flex={1}
           keyboardShouldPersistTaps="handled"
