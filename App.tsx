@@ -11,10 +11,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createNativeStackNavigator();
 
-const theme = extendTheme({
-  config: {}
-});
-
 export default function App() {
   const [initialMode, setInitialMode] = useState('');
 
@@ -25,7 +21,6 @@ export default function App() {
   const loadThemeMode = async () => {
     try {
       const colorMode = await AsyncStorage.getItem('themeMode');
-      console.log('App: ', colorMode);
       if (colorMode) {
         setInitialMode(colorMode);
       } else {
