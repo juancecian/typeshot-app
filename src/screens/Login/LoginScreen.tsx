@@ -10,18 +10,13 @@ import {
   VStack,
   View,
   KeyboardAvoidingView,
-  useColorMode,
-  useColorModeValue
+  useColorMode
 } from 'native-base';
 import Animated, { FadeIn, color } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import {
-  StatusBar,
-  setStatusBarBackgroundColor,
-  setStatusBarStyle
-} from 'expo-status-bar';
+import { setStatusBarStyle } from 'expo-status-bar';
 
 interface Props {
   navigation: any;
@@ -29,11 +24,6 @@ interface Props {
 
 const LoginScreen = (props: Props) => {
   const { colorMode, toggleColorMode } = useColorMode();
-  const [pressedBtn, setPressedBtn] = useState(false);
-
-  const handleThemeMode = async () => {
-    toggleColorMode();
-  };
 
   const saveColorMode = async () => {
     try {
@@ -41,11 +31,8 @@ const LoginScreen = (props: Props) => {
         await AsyncStorage.setItem('themeMode', colorMode);
       }
       const mode = await AsyncStorage.getItem('themeMode');
-      console.log('saveColorMode: ', mode);
     } catch (error) {
       console.log(error);
-    } finally {
-      setPressedBtn(false);
     }
   };
 
