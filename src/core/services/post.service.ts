@@ -1,4 +1,10 @@
-import { collection, getDocs, getFirestore } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  limit,
+  query
+} from 'firebase/firestore';
 import app from '../../config/firebase.config';
 import { PostModel } from '../../models/post.model';
 
@@ -9,7 +15,10 @@ export const getPosts = (userIds: string[]): Promise<PostModel[]> => {
     try {
       const posts: PostModel[] = [];
       for (const userId of userIds) {
-        const postCol = collection(db, `Users/${userId}/post_information`);
+        const postCol = query(
+          collection(db, `Users/${userId}/post_information`),
+          limit(20)
+        );
         const postSnapshot = await getDocs(postCol);
         const userCol = collection(db, `Users/${userId}/user_information`);
         const userSnapshot = await getDocs(userCol);

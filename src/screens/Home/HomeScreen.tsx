@@ -13,8 +13,10 @@ import {
   View,
   useColorMode,
   Text,
-  Heading
+  Heading,
+  HStack
 } from 'native-base';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
   navigation: any;
@@ -78,11 +80,25 @@ const HomeScreen = (props: Props) => {
         alignItems="center"
         bg={colorMode === 'light' ? 'warmGray.50' : 'coolGray.800'}
       >
+        <HStack
+          w="100%"
+          mt={20}
+          space={10}
+          justifyContent="flex-end"
+          right={10}
+        >
+          <View>
+            <Ionicons name={'chatbubbles-outline'} color="white" size={25} />
+          </View>
+          <View>
+            <Ionicons name={'notifications-outline'} color="white" size={25} />
+          </View>
+        </HStack>
         {!isLoadingData ? (
           <FlatList
             data={postsData}
             w="100%"
-            mt="20%"
+            mt="10%"
             renderItem={({ item }) => (
               <ItemList item={item} navigation={props.navigation} />
             )}
