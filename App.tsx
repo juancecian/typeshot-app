@@ -8,6 +8,7 @@ import RegisterScreen from './src/screens/Register/RegisterScreen';
 import { AppProvider } from './src/context/AppContext';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import HomeScreen from './src/screens/Home/HomeScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,6 +54,11 @@ export default function App() {
                   name="Register"
                   component={RegisterScreen}
                   options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="Home"
+                  component={HomeScreen}
+                  options={{ headerShown: false, gestureEnabled: false }}
                 />
               </Stack.Navigator>
             </NavigationContainer>
