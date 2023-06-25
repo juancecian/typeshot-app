@@ -17,8 +17,8 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useContext, useEffect, useState } from 'react';
 import { setStatusBarStyle } from 'expo-status-bar';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import app from '../../config/firebase.config';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../config/firebase.config';
 import { getUserById } from '../../core/services/user.service';
 import { UserContext } from '../../context/AppContext';
 import { validateEmailData } from '../../config/validations.config';
@@ -52,7 +52,6 @@ const LoginScreen = (props: Props) => {
     try {
       if (validEmail && email && pwd && pwd.length > 0) {
         setPressedBtn(true);
-        const auth = getAuth(app);
         const authenticated = await signInWithEmailAndPassword(
           auth,
           email,
@@ -62,7 +61,7 @@ const LoginScreen = (props: Props) => {
           const userData = await getUserById(authenticated.user.uid);
           if (userData) {
             updateUser(userData);
-            props.navigation.navigate('Home');
+            props.navigation.navigate('Tabs');
           }
         }
       }
