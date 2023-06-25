@@ -54,7 +54,6 @@ const HomeScreen = (props: Props) => {
         'kHeFgCTO4ZQezSDoCo3jjlRA66V2',
         'mDENoF9xUKRYgXzSz2s3wO4HA823'
       ]);
-      console.log('getpostsdata', data);
       setPostsData(data);
     } catch (error) {
       console.log(error);
@@ -73,52 +72,41 @@ const HomeScreen = (props: Props) => {
     }
   };
   return (
-    <Animated.View entering={FadeIn.duration(500)} style={{ flex: 1 }}>
-      <VStack
-        flex={1}
-        justifyContent="center"
-        alignItems="center"
-        bg={colorMode === 'light' ? 'warmGray.50' : 'coolGray.800'}
-      >
-        <HStack
+    <VStack
+      flex={1}
+      justifyContent="center"
+      alignItems="center"
+      bg={colorMode === 'light' ? 'warmGray.50' : 'coolGray.800'}
+    >
+      <HStack w="100%" mt={20} space={10} justifyContent="flex-end" right={10}>
+        <View>
+          <Ionicons name={'chatbubbles-outline'} color="white" size={25} />
+        </View>
+        <View>
+          <Ionicons name={'notifications-outline'} color="white" size={25} />
+        </View>
+      </HStack>
+      {!isLoadingData ? (
+        <FlatList
+          data={postsData}
           w="100%"
-          mt={20}
-          space={10}
-          justifyContent="flex-end"
-          right={10}
-        >
-          <View>
-            <Ionicons name={'chatbubbles-outline'} color="white" size={25} />
-          </View>
-          <View>
-            <Ionicons name={'notifications-outline'} color="white" size={25} />
-          </View>
-        </HStack>
-        {!isLoadingData ? (
-          <FlatList
-            data={postsData}
-            w="100%"
-            mt="10%"
-            renderItem={({ item }) => (
-              <ItemList item={item} navigation={props.navigation} />
-            )}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-              />
-            }
-          />
-        ) : (
-          <VStack flex={1} justifyContent="center" alignItems="center">
-            <Spinner size="sm" />
-            <Heading mt="5" fontSize="15">
-              Cargando información..
-            </Heading>
-          </VStack>
-        )}
-      </VStack>
-    </Animated.View>
+          mt="10%"
+          renderItem={({ item }) => (
+            <ItemList item={item} navigation={props.navigation} />
+          )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+        />
+      ) : (
+        <VStack flex={1} justifyContent="center" alignItems="center">
+          <Spinner size="sm" />
+          <Heading mt="5" fontSize="15">
+            Cargando información..
+          </Heading>
+        </VStack>
+      )}
+    </VStack>
   );
 };
 
