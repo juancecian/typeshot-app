@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { theme } from 'native-base';
 import { createContext, useEffect, useState } from 'react';
 import { UserModel } from '../models/user.model';
+import { auth } from '../config/firebase.config';
+import { useNavigation } from '@react-navigation/native';
 
 const ThemeContext = createContext<{
   colorMode: string;
@@ -19,12 +20,40 @@ const UserContext = createContext<{
   updateUser: () => {}
 });
 
-export const AppProvider = ({ children }: { children: any }) => {
+const RedirectContext = createContext<{
+  redirectRoute: string;
+  onRedirectRouteChange: (route: string) => void;
+}>({
+  redirectRoute: '',
+  onRedirectRouteChange: () => {}
+});
+
+interface Props {
+  children: any;
+}
+export const AppProvider = (props: Props) => {
   const [colorMode, setColorMode] = useState('');
   const [user, setUser] = useState<UserModel>();
+  const [redirectRoute, setRedirectRoute] = useState('');
+  const navigation = useNavigation();
 
   useEffect(() => {
     loadThemeMode();
+
+    const unsubcribe = auth.onIdTokenChanged(async (idToken) => {
+      try {
+        const tokenResult = await idToken?.getIdTokenResult();
+        if (tokenResult) {
+          setRedirectRoute('Tabs');
+        } else {
+          setRedirectRoute('Login');
+        }
+      } catch (error) {
+        console.log(error);
+        setRedirectRoute('Login');
+      }
+    });
+    return () => unsubcribe();
   }, []);
 
   const loadThemeMode = async () => {
@@ -57,6 +86,10 @@ export const AppProvider = ({ children }: { children: any }) => {
     }
   };
 
+  const handleRedirectRouteChange = (route: string) => {
+    setRedirectRoute(route);
+  };
+
   const themeContextValue = {
     colorMode: colorMode,
     onColorModeChange: handleColorModeChange
@@ -67,13 +100,20 @@ export const AppProvider = ({ children }: { children: any }) => {
     updateUser: handleUpdateUser
   };
 
+  const redirectContextValue = {
+    redirectRoute: redirectRoute,
+    onRedirectRouteChange: handleRedirectRouteChange
+  };
+
   return (
-    <ThemeContext.Provider value={themeContextValue}>
-      <UserContext.Provider value={userContextValue}>
-        {children}
-      </UserContext.Provider>
-    </ThemeContext.Provider>
+    <RedirectContext.Provider value={redirectContextValue}>
+      <ThemeContext.Provider value={themeContextValue}>
+        <UserContext.Provider value={userContextValue}>
+          {props.children}
+        </UserContext.Provider>
+      </ThemeContext.Provider>
+    </RedirectContext.Provider>
   );
 };
 
-export { ThemeContext, UserContext };
+export { ThemeContext, UserContext, RedirectContext };
