@@ -34,7 +34,6 @@ export const getPosts = (userIds: string[]): Promise<PostModel[]> => {
           posts.push(docData);
         });
       }
-      console.log(posts);
       resolve(posts);
     } catch (error) {
       reject(error);

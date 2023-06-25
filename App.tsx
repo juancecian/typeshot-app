@@ -9,6 +9,8 @@ import { AppProvider } from './src/context/AppContext';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeScreen from './src/screens/Home/HomeScreen';
+import Tabs from './src/screens/Tabs/Tabs';
+import ScreenLoader from './src/components/ScreenLoader';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,16 +37,21 @@ export default function App() {
     initialMode && (
       <>
         <StatusBar style="inverted" />
-        <AppProvider>
-          <NativeBaseProvider
-            theme={extendTheme({
-              config: {
-                initialColorMode: initialMode
-              }
-            })}
-          >
-            <NavigationContainer>
-              <Stack.Navigator initialRouteName="Login">
+        <NavigationContainer>
+          <AppProvider>
+            <NativeBaseProvider
+              theme={extendTheme({
+                config: {
+                  initialColorMode: initialMode
+                }
+              })}
+            >
+              <Stack.Navigator initialRouteName="Loader">
+                <Stack.Screen
+                  name="Tabs"
+                  component={Tabs}
+                  options={{ headerShown: false }}
+                />
                 <Stack.Screen
                   name="Login"
                   component={LoginScreen}
@@ -60,10 +67,15 @@ export default function App() {
                   component={HomeScreen}
                   options={{ headerShown: false, gestureEnabled: false }}
                 />
+                <Stack.Screen
+                  name="Loader"
+                  component={ScreenLoader}
+                  options={{ headerShown: false, gestureEnabled: false }}
+                />
               </Stack.Navigator>
-            </NavigationContainer>
-          </NativeBaseProvider>
-        </AppProvider>
+            </NativeBaseProvider>
+          </AppProvider>
+        </NavigationContainer>
       </>
     )
   );
