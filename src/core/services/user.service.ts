@@ -1,6 +1,6 @@
 import { UserModel } from '../../models/user.model';
 import { collection, getDocs, getFirestore } from 'firebase/firestore';
-import app from '../../config/firebase.config';
+import { app } from '../../config/firebase.config';
 
 const db = getFirestore(app);
 

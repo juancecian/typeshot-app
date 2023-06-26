@@ -1,11 +1,13 @@
 import {
+  addDoc,
   collection,
   getDocs,
   getFirestore,
   limit,
+  orderBy,
   query
 } from 'firebase/firestore';
-import app from '../../config/firebase.config';
+import { app } from '../../config/firebase.config';
 import { PostModel } from '../../models/post.model';
 
 const db = getFirestore(app);
@@ -17,7 +19,8 @@ export const getPosts = (userIds: string[]): Promise<PostModel[]> => {
       for (const userId of userIds) {
         const postCol = query(
           collection(db, `Users/${userId}/post_information`),
-          limit(20)
+          limit(20),
+          orderBy('createdAt', 'desc')
         );
         const postSnapshot = await getDocs(postCol);
         const userCol = collection(db, `Users/${userId}/user_information`);
@@ -35,6 +38,26 @@ export const getPosts = (userIds: string[]): Promise<PostModel[]> => {
         });
       }
       resolve(posts);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export const createPost = (post: PostModel): Promise<boolean> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const addedDoc = await addDoc(
+        collection(db, `Users/${post.author.id}/post_information`),
+        {
+          text: post.text,
+          images: [],
+          createdAt: post.createdAt
+        }
+      );
+      if (addedDoc.id) {
+        resolve(true);
+      }
     } catch (error) {
       reject(error);
     }
