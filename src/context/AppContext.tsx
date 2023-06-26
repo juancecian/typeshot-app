@@ -3,6 +3,7 @@ import { createContext, useEffect, useState } from 'react';
 import { UserModel } from '../models/user.model';
 import { auth } from '../config/firebase.config';
 import { useNavigation } from '@react-navigation/native';
+import { getUserById } from '../core/services/user.service';
 
 const ThemeContext = createContext<{
   colorMode: string;
@@ -35,7 +36,6 @@ export const AppProvider = (props: Props) => {
   const [colorMode, setColorMode] = useState('');
   const [user, setUser] = useState<UserModel>();
   const [redirectRoute, setRedirectRoute] = useState('');
-  const navigation = useNavigation();
 
   useEffect(() => {
     loadThemeMode();
@@ -43,12 +43,16 @@ export const AppProvider = (props: Props) => {
     const unsubcribe = auth.onIdTokenChanged(async (idToken) => {
       try {
         const tokenResult = await idToken?.getIdTokenResult();
-        if (tokenResult) {
+        if (tokenResult && auth.currentUser) {
+          const findedUser = await getUserById(auth.currentUser.uid);
+          setUser(findedUser);
           setRedirectRoute('Tabs');
         } else {
+          setUser(undefined);
           setRedirectRoute('Login');
         }
       } catch (error) {
+        setUser(undefined);
         console.log(error);
         setRedirectRoute('Login');
       }
