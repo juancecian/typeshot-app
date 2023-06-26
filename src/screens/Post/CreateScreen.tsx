@@ -1,17 +1,20 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Avatar,
   FormControl,
   HStack,
-  Text,
   TextArea,
   VStack,
   View,
-  useColorMode
+  useColorMode,
+  useToast
 } from 'native-base';
-import Animated, { FadeIn } from 'react-native-reanimated';
 import { UserContext } from '../../context/AppContext';
 import { FontAwesome } from '@expo/vector-icons';
+import Toast from '../../components/Toast';
+import { PostModel } from '../../models/post.model';
+import { createPost } from '../../core/services/post.service';
+import Animated from 'react-native-reanimated';
 
 interface Props {
   navigation: any;
@@ -20,13 +23,38 @@ interface Props {
 const CreateScreen = (props: Props) => {
   const { colorMode } = useColorMode();
   const { user } = useContext(UserContext);
+  const toast = useToast();
+
+  const [textPost, setTextPost] = useState('');
 
   const goBackWithAnimation = () => {
     props.navigation.goBack();
   };
 
+  const handleCreatePost = async () => {
+    try {
+      if (user && textPost.length > 0) {
+        let newPost = new PostModel();
+        newPost.text = textPost;
+        newPost.images = [];
+        newPost.author.id = user.id;
+
+        const postPublished = await createPost(newPost);
+        if (postPublished) {
+          toast.show({
+            placement: 'top',
+            render: () => <Toast color="emerald.500" text="Post creado!" />
+          });
+          props.navigation.navigate('HomeTab');
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <Animated.View style={{ flex: 1 }} entering={FadeIn.duration(500)}>
+    <Animated.View style={{ flex: 1 }}>
       <VStack
         flex={1}
         bg={colorMode === 'light' ? 'warmGray.50' : 'coolGray.800'}
@@ -41,7 +69,12 @@ const CreateScreen = (props: Props) => {
             />
           </View>
           <View>
-            <FontAwesome name={'send'} color="white" size={20} />
+            <FontAwesome
+              name={'send'}
+              onPress={handleCreatePost}
+              color="white"
+              size={20}
+            />
           </View>
         </HStack>
         <HStack mt="10%" ml="3">
@@ -61,6 +94,7 @@ const CreateScreen = (props: Props) => {
                 color="white"
                 placeholderTextColor="#737373"
                 bgColor="transparent"
+                onChangeText={(text) => setTextPost(text)}
               />
             </FormControl>
           </VStack>
