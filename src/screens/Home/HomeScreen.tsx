@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { UserContext } from '../../context/AppContext';
 import ItemList from '../../components/ItemList';
 import { getPosts } from '../../core/services/post.service';
 import { PostModel } from '../../models/post.model';
-import { RefreshControl } from 'react-native';
+import { RefreshControl, StatusBar } from 'react-native';
 import {
   FlatList,
   ScrollView,
@@ -24,6 +24,7 @@ interface Props {
 const HomeScreen = (props: Props) => {
   const { user } = useContext(UserContext);
   const { colorMode } = useColorMode();
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const [postsData, setPostsData] = useState<PostModel[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -71,11 +72,10 @@ const HomeScreen = (props: Props) => {
       console.log(error);
     }
   };
+
   return (
     <VStack
       flex={1}
-      justifyContent="center"
-      alignItems="center"
       bg={colorMode === 'light' ? 'warmGray.50' : 'coolGray.800'}
     >
       <HStack w="100%" mt={20} space={10} justifyContent="flex-end" right={10}>
@@ -87,13 +87,36 @@ const HomeScreen = (props: Props) => {
         </View>
       </HStack>
       {!isLoadingData ? (
-        <FlatList
+        <Animated.FlatList
           data={postsData}
-          w="100%"
-          mt="10%"
-          renderItem={({ item }) => (
-            <ItemList item={item} navigation={props.navigation} />
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
           )}
+          contentContainerStyle={{
+            padding: 10,
+            paddingTop: 10
+          }}
+          renderItem={({ item, index }) => {
+            const inputRange = [-1, 0, 70 * index, 70 * (index + 2)];
+            const opacityInputRange = [-1, 0, 70 * index, 70 * (index + 1)];
+            const scale = scrollY.interpolate({
+              inputRange,
+              outputRange: [1, 1, 1, 0]
+            });
+            const opacity = scrollY.interpolate({
+              inputRange: opacityInputRange,
+              outputRange: [1, 1, 1, 0]
+            });
+            return (
+              <ItemList
+                item={item}
+                navigation={props.navigation}
+                scale={scale}
+                opacity={opacity}
+              />
+            );
+          }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
