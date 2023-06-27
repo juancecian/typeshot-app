@@ -1,4 +1,12 @@
-import { Avatar, Box, HStack, VStack, Text, Spacer } from 'native-base';
+import {
+  Avatar,
+  Box,
+  HStack,
+  VStack,
+  Text,
+  Spacer,
+  useColorMode
+} from 'native-base';
 import { UserModel } from '../models/user.model';
 import Animated from 'react-native-reanimated';
 
@@ -11,9 +19,17 @@ interface Props {
 
 const ItemList = (props: Props) => {
   const { scale, opacity } = props;
+  const { colorMode } = useColorMode();
+
   return (
     <Animated.View style={{ transform: [{ scale }], opacity }}>
-      <Box flex={1} bg="coolGray.700" rounded={10} p="3" my="1">
+      <Box
+        flex={1}
+        bg={colorMode === 'light' ? 'coolGray.100' : 'coolGray.700'}
+        rounded={10}
+        p="3"
+        my="1"
+      >
         <HStack space={[2, 3]} justifyContent="space-between">
           <Avatar
             size="48px"
