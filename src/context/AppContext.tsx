@@ -40,13 +40,18 @@ export const AppProvider = (props: Props) => {
   useEffect(() => {
     loadThemeMode();
 
-    const unsubcribe = auth.onIdTokenChanged(async (idToken) => {
+    const unsubcribe = auth.onAuthStateChanged(async (idToken) => {
       try {
-        const tokenResult = await idToken?.getIdTokenResult();
-        if (tokenResult && auth.currentUser) {
-          const findedUser = await getUserById(auth.currentUser.uid);
-          setUser(findedUser);
-          setRedirectRoute('Tabs');
+        if (idToken) {
+          const tokenResult = await idToken.getIdTokenResult();
+          if (tokenResult && auth.currentUser) {
+            const findedUser = await getUserById(auth.currentUser.uid);
+            setUser(findedUser);
+            setRedirectRoute('Tabs');
+          } else {
+            setUser(undefined);
+            setRedirectRoute('Login');
+          }
         } else {
           setUser(undefined);
           setRedirectRoute('Login');
