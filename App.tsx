@@ -46,15 +46,16 @@ export default function App() {
                 }
               })}
             >
-              <Stack.Navigator initialRouteName="Loader">
-                <Stack.Screen
-                  name="Tabs"
-                  component={Tabs}
-                  options={{ headerShown: false }}
-                />
+              <Stack.Navigator initialRouteName="Login">
                 <Stack.Screen
                   name="Login"
                   component={LoginScreen}
+                  options={{ headerShown: false }}
+                />
+
+                <Stack.Screen
+                  name="Tabs"
+                  component={Tabs}
                   options={{ headerShown: false }}
                 />
                 <Stack.Screen
