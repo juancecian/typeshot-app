@@ -67,11 +67,6 @@ export default function App() {
                   component={HomeScreen}
                   options={{ headerShown: false, gestureEnabled: false }}
                 />
-                <Stack.Screen
-                  name="Loader"
-                  component={ScreenLoader}
-                  options={{ headerShown: false, gestureEnabled: false }}
-                />
               </Stack.Navigator>
             </NativeBaseProvider>
           </AppProvider>

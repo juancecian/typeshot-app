@@ -17,6 +17,7 @@ import {
   HStack
 } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
+import BottomSheetProfile from '../../components/BottomSheetProfile';
 
 interface Props {
   navigation: any;
@@ -29,20 +30,6 @@ const HomeScreen = (props: Props) => {
   const [postsData, setPostsData] = useState<PostModel[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = props.navigation.addListener(
-      'beforeRemove',
-      (e: any) => {
-        if (!user) {
-          return;
-        }
-        e.preventDefault();
-        return true;
-      }
-    );
-    return unsubscribe;
-  }, [props.navigation, user]);
 
   useEffect(() => {
     setIsLoadingData(true);
@@ -78,61 +65,76 @@ const HomeScreen = (props: Props) => {
       flex={1}
       bg={colorMode === 'light' ? 'warmGray.50' : 'coolGray.800'}
     >
-      <HStack w="100%" mt={20} space={10} justifyContent="flex-end" right={10}>
-        <View>
-          <Ionicons
-            name={'chatbubbles-outline'}
-            color={colorMode === 'light' ? 'black' : 'white'}
-            size={25}
-          />
-        </View>
-        <View>
-          <Ionicons
-            name={'notifications-outline'}
-            color={colorMode === 'light' ? 'black' : 'white'}
-            size={25}
-          />
-        </View>
-      </HStack>
       {!isLoadingData ? (
-        <Animated.FlatList
-          data={postsData}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: true }
-          )}
-          contentContainerStyle={{
-            padding: 10,
-            paddingTop: 10
-          }}
-          renderItem={({ item, index }) => {
-            const inputRange = [-1, 0, 70 * index, 70 * (index + 2)];
-            const opacityInputRange = [-1, 0, 70 * index, 70 * (index + 1)];
-            const scale = scrollY.interpolate({
-              inputRange,
-              outputRange: [1, 1, 1, 0]
-            });
-            const opacity = scrollY.interpolate({
-              inputRange: opacityInputRange,
-              outputRange: [1, 1, 1, 0]
-            });
-            return (
-              <ItemList
-                item={item}
-                navigation={props.navigation}
-                scale={scale}
-                opacity={opacity}
+        <>
+          <HStack
+            w="100%"
+            mt={20}
+            space={10}
+            justifyContent="flex-end"
+            right={10}
+          >
+            <View>
+              <Ionicons
+                name={'chatbubbles-outline'}
+                color={colorMode === 'light' ? 'black' : 'white'}
+                size={25}
               />
-            );
-          }}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-          }
-        />
+            </View>
+            <View>
+              <Ionicons
+                name={'notifications-outline'}
+                color={colorMode === 'light' ? 'black' : 'white'}
+                size={25}
+              />
+            </View>
+          </HStack>
+          <Animated.FlatList
+            data={postsData}
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+              { useNativeDriver: true }
+            )}
+            contentContainerStyle={{
+              padding: 10,
+              paddingTop: 10
+            }}
+            renderItem={({ item, index }) => {
+              const inputRange = [-1, 0, 70 * index, 70 * (index + 2)];
+              const opacityInputRange = [-1, 0, 70 * index, 70 * (index + 1)];
+              const scale = scrollY.interpolate({
+                inputRange,
+                outputRange: [1, 1, 1, 0]
+              });
+              const opacity = scrollY.interpolate({
+                inputRange: opacityInputRange,
+                outputRange: [1, 1, 1, 0]
+              });
+              return (
+                <ItemList
+                  item={item}
+                  navigation={props.navigation}
+                  scale={scale}
+                  opacity={opacity}
+                />
+              );
+            }}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+              />
+            }
+          />
+        </>
       ) : (
         <VStack flex={1} justifyContent="center" alignItems="center">
-          <Spinner size="sm" />
-          <Heading mt="5" fontSize="15">
+          <Spinner size="lg" mt={5} />
+          <Heading
+            color={colorMode === 'light' ? 'muted.800' : 'muted.200'}
+            fontSize="md"
+            fontWeight={600}
+          >
             Cargando información..
           </Heading>
         </VStack>
