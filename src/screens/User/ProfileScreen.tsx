@@ -1,6 +1,6 @@
 import { VStack, useColorMode } from 'native-base';
-import { useContext, useState } from 'react';
-import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
+import React, { useContext, useState } from 'react';
+import Animated from 'react-native-reanimated';
 import { UserContext } from '../../context/AppContext';
 import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
 import PostsPage from './ProfilePages/PostsPage';
@@ -25,7 +25,7 @@ const ProfileScreen = () => {
   ]);
 
   return (
-    <Animated.View style={{ flex: 1 }} entering={ZoomIn.duration(500)}>
+    <Animated.View style={{ flex: 1 }}>
       <VStack
         flex={1}
         bg={colorMode === 'light' ? 'warmGray.50' : 'coolGray.800'}
@@ -39,11 +39,14 @@ const ProfileScreen = () => {
           renderTabBar={(props) => (
             <TabBar
               {...props}
-              indicatorStyle={{ backgroundColor: 'white' }}
+              indicatorStyle={{
+                backgroundColor: colorMode === 'light' ? 'black' : 'white'
+              }}
               style={{
                 backgroundColor:
                   colorMode === 'light' ? 'warmGray.50' : 'coolGray.800'
               }}
+              labelStyle={{ color: colorMode === 'light' ? 'black' : 'white' }}
             />
           )}
         />
