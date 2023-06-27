@@ -94,7 +94,6 @@ const LoginScreen = (props: Props) => {
   }, [colorMode]);
 
   useEffect(() => {
-    console.log(redirectRoute);
     if (redirectRoute && redirectRoute === 'Login') {
       setIsLoadingScreen(false);
     }
