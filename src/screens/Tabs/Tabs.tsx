@@ -49,6 +49,7 @@ const Tabs = () => {
               name={focused ? 'pluscircle' : 'pluscircleo'}
               size={size}
               color={colorMode === 'light' ? 'black' : 'white'}
+              style={{ marginTop: 5 }}
             />
           ),
           tabBarStyle: {
