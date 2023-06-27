@@ -10,7 +10,8 @@ import {
   VStack,
   View,
   KeyboardAvoidingView,
-  useColorMode
+  useColorMode,
+  Spinner
 } from 'native-base';
 import Animated, { FadeIn, color } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,9 +21,10 @@ import { setStatusBarStyle } from 'expo-status-bar';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../config/firebase.config';
 import { getUserById } from '../../core/services/user.service';
-import { UserContext } from '../../context/AppContext';
+import { RedirectContext, UserContext } from '../../context/AppContext';
 import { validateEmailData } from '../../config/validations.config';
 import { EmailEnum } from '../../enums/email.enum';
+import { CommonActions } from '@react-navigation/native';
 
 interface Props {
   navigation: any;
@@ -32,11 +34,17 @@ const LoginScreen = (props: Props) => {
   const [email, setEmail] = useState<string | null>(null);
   const [validEmail, setValidEmail] = useState(EmailEnum.INITIALIZE_VALUE);
   const [pwd, setPwd] = useState<string | null>(null);
-
   const [pressedBtn, setPressedBtn] = useState(false);
+  const [isLoadingScreen, setIsLoadingScreen] = useState(true);
 
   const { colorMode, toggleColorMode } = useColorMode();
   const { updateUser } = useContext(UserContext);
+  const { redirectRoute } = useContext(RedirectContext);
+
+  const resetAction = CommonActions.reset({
+    index: 1, // Índice de la ruta que quieres establecer como activa
+    routes: [{ name: 'Tabs' }]
+  });
 
   const saveColorMode = async () => {
     try {
@@ -84,6 +92,37 @@ const LoginScreen = (props: Props) => {
       setStatusBarStyle(colorMode === 'light' ? 'dark' : 'light');
     }
   }, [colorMode]);
+
+  useEffect(() => {
+    console.log(redirectRoute);
+    if (redirectRoute && redirectRoute === 'Login') {
+      setIsLoadingScreen(false);
+    }
+
+    if (redirectRoute.length && redirectRoute !== 'Login') {
+      props.navigation.dispatch(resetAction);
+    }
+  }, [redirectRoute]);
+
+  if (isLoadingScreen) {
+    return (
+      <View
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+        bg={colorMode === 'light' ? 'warmGray.50' : 'coolGray.800'}
+      >
+        <Spinner size="lg" mt={5} />
+        <Heading
+          color={colorMode === 'light' ? 'muted.800' : 'muted.200'}
+          fontSize="md"
+          fontWeight={600}
+        >
+          Cargando..
+        </Heading>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
