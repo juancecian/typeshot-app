@@ -5,7 +5,8 @@ import {
   Spinner,
   Text,
   VStack,
-  View
+  View,
+  useColorMode
 } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { PostModel } from '../../../models/post.model';
@@ -15,6 +16,9 @@ import { RefreshControl } from 'react-native';
 import { getPosts } from '../../../core/services/post.service';
 import { Image } from 'expo-image';
 import Animated from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
+import { setStatusBarStyle } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
   navigation: any;
@@ -22,24 +26,19 @@ interface Props {
 
 const PostsPage = (props: Props) => {
   const { user } = useContext(UserContext);
+  const { colorMode, toggleColorMode } = useColorMode();
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [postsData, setPostsData] = useState<PostModel[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    setIsLoadingData(true);
-    getPostData();
-  }, []);
-
   const getPostData = async () => {
     try {
-      const data = await getPosts([
-        'kHeFgCTO4ZQezSDoCo3jjlRA66V2',
-        'mDENoF9xUKRYgXzSz2s3wO4HA823'
-      ]);
-      setPostsData(data);
+      if (user) {
+        const data = await getPosts([user.id]);
+        setPostsData(data);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -57,8 +56,39 @@ const PostsPage = (props: Props) => {
     }
   };
 
+  const saveColorMode = async () => {
+    try {
+      if (colorMode) {
+        await AsyncStorage.setItem('themeMode', colorMode);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (colorMode) {
+      saveColorMode();
+      setStatusBarStyle(colorMode === 'light' ? 'dark' : 'light');
+    }
+  }, [colorMode]);
+
+  useEffect(() => {
+    setIsLoadingData(true);
+    getPostData();
+  }, []);
+
   return (
     <VStack flex={1} mt="10">
+      <View style={{ position: 'absolute', right: 30 }}>
+        <Ionicons
+          name={colorMode === 'light' ? 'ios-moon' : 'sunny'}
+          size={20}
+          color={colorMode === 'light' ? 'black' : 'white'}
+          onPress={toggleColorMode}
+        />
+      </View>
+
       <View w="100%" alignItems="center" mt={5}>
         <Image
           style={{ width: '50%', height: 200, borderRadius: 100 }}

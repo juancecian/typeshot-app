@@ -1,72 +1,123 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Image } from 'expo-image';
-import { Avatar, Box, FlatList, HStack, Text, VStack, View } from 'native-base';
-import Animated from 'react-native-reanimated';
-import { Dimensions, useWindowDimensions } from 'react-native';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import {
+  Avatar,
+  Box,
+  FlatList,
+  HStack,
+  Heading,
+  Spinner,
+  Text,
+  VStack,
+  View
+} from 'native-base';
+import { Dimensions, RefreshControl } from 'react-native';
 import { UserContext } from '../../../context/AppContext';
+import { getPosts } from '../../../core/services/post.service';
+import { PostModel } from '../../../models/post.model';
 
 const PhotosPage = () => {
   const { user } = useContext(UserContext);
   const { width, height } = Dimensions.get('window');
 
-  const [images, setImages] = useState([
-    'https://firebasestorage.googleapis.com/v0/b/socialmedia-2d504.appspot.com/o/images%2FmDENoF9xUKRYgXzSz2s3wO4HA823%2Favatar.jpg?alt=media&token=b8f6a4c3-a0d2-4c3a-af83-b4de458851a1',
-    'https://firebasestorage.googleapis.com/v0/b/socialmedia-2d504.appspot.com/o/images%2FmDENoF9xUKRYgXzSz2s3wO4HA823%2Favatar.jpg?alt=media&token=b8f6a4c3-a0d2-4c3a-af83-b4de458851a1',
-    'https://firebasestorage.googleapis.com/v0/b/socialmedia-2d504.appspot.com/o/images%2FmDENoF9xUKRYgXzSz2s3wO4HA823%2Favatar.jpg?alt=media&token=b8f6a4c3-a0d2-4c3a-af83-b4de458851a1',
-    'https://firebasestorage.googleapis.com/v0/b/socialmedia-2d504.appspot.com/o/images%2FmDENoF9xUKRYgXzSz2s3wO4HA823%2Favatar.jpg?alt=media&token=b8f6a4c3-a0d2-4c3a-af83-b4de458851a1',
-    'https://firebasestorage.googleapis.com/v0/b/socialmedia-2d504.appspot.com/o/images%2FoZMzVSBQpIYPaqHLCi9wkhuz9Ck2%2Favatar.jpg?alt=media&token=b3cf44be-e616-4777-8e35-3f347410ef01',
-    'https://firebasestorage.googleapis.com/v0/b/socialmedia-2d504.appspot.com/o/images%2FoZMzVSBQpIYPaqHLCi9wkhuz9Ck2%2Favatar.jpg?alt=media&token=b3cf44be-e616-4777-8e35-3f347410ef01',
-    'https://firebasestorage.googleapis.com/v0/b/socialmedia-2d504.appspot.com/o/images%2FoZMzVSBQpIYPaqHLCi9wkhuz9Ck2%2Favatar.jpg?alt=media&token=b3cf44be-e616-4777-8e35-3f347410ef01',
-    'https://firebasestorage.googleapis.com/v0/b/socialmedia-2d504.appspot.com/o/images%2FoZMzVSBQpIYPaqHLCi9wkhuz9Ck2%2Favatar.jpg?alt=media&token=b3cf44be-e616-4777-8e35-3f347410ef01',
-    'https://firebasestorage.googleapis.com/v0/b/socialmedia-2d504.appspot.com/o/images%2FoZMzVSBQpIYPaqHLCi9wkhuz9Ck2%2Favatar.jpg?alt=media&token=b3cf44be-e616-4777-8e35-3f347410ef01'
-  ]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [postsData, setPostsData] = useState<PostModel[]>([]);
+
+  useEffect(() => {
+    getPostData();
+  }, []);
+
+  const getPostData = async () => {
+    try {
+      if (user) {
+        const data = await getPosts([user.id]);
+        let filterPosts = data.filter((post) => post.images.length > 0);
+        setPostsData(filterPosts);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoadingData(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await getPostData();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <View flex={1} justifyContent="center">
-      <FlatList
-        data={images}
-        contentContainerStyle={{ padding: 10 }}
-        renderItem={({ item }) => (
-          <Box flex={1} bg="coolGray.700" rounded={10} p="3" my="1">
-            <Image
-              source={item}
-              style={{
-                width: width - 40,
-                height: height / 2,
-                borderRadius: 5
-              }}
-            />
-            <HStack space={[2, 3]} pt={3}>
-              <Avatar
-                size="48px"
-                source={{
-                  uri: user?.avatar
+      {!isLoadingData && (
+        <FlatList
+          data={postsData}
+          ListEmptyComponent={
+            <VStack flex={1} justifyContent="center" alignItems="center">
+              <Heading mt="50%" fontSize="15">
+                No hay información para mostrar.
+              </Heading>
+            </VStack>
+          }
+          contentContainerStyle={{ padding: 10 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+          renderItem={({ item }) => (
+            <Box flex={1} bg="coolGray.700" rounded={10} p="3" my="1">
+              <Image
+                source={item.images[0]}
+                style={{
+                  width: width - 40,
+                  height: height / 2,
+                  borderRadius: 5
                 }}
               />
-              <VStack w="80%">
-                <Text
-                  _dark={{
-                    color: 'warmGray.50'
+              <HStack space={[2, 3]} pt={3}>
+                <Avatar
+                  size="48px"
+                  source={{
+                    uri: user?.avatar
                   }}
-                  color="coolGray.800"
-                  bold
-                  isTruncated={true}
-                >
-                  {user?.username}
-                </Text>
-                <Text
-                  color="coolGray.600"
-                  _dark={{
-                    color: 'warmGray.200'
-                  }}
-                >
-                  Nana miren lo que era
-                </Text>
-              </VStack>
-            </HStack>
-          </Box>
-        )}
-      />
+                />
+                <VStack w="80%">
+                  <Text
+                    _dark={{
+                      color: 'warmGray.50'
+                    }}
+                    color="coolGray.800"
+                    bold
+                    isTruncated={true}
+                  >
+                    {user?.username}
+                  </Text>
+                  <Text
+                    color="coolGray.600"
+                    _dark={{
+                      color: 'warmGray.200'
+                    }}
+                  >
+                    {item.text}
+                  </Text>
+                </VStack>
+              </HStack>
+            </Box>
+          )}
+        />
+      )}
+      {isLoadingData && (
+        <VStack flex={1} justifyContent="center" alignItems="center">
+          <Spinner size="sm" />
+          <Heading mt="5" fontSize="15">
+            Cargando información..
+          </Heading>
+        </VStack>
+      )}
     </View>
   );
 };
