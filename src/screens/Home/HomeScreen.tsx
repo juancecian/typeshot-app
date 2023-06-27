@@ -80,10 +80,18 @@ const HomeScreen = (props: Props) => {
     >
       <HStack w="100%" mt={20} space={10} justifyContent="flex-end" right={10}>
         <View>
-          <Ionicons name={'chatbubbles-outline'} color="white" size={25} />
+          <Ionicons
+            name={'chatbubbles-outline'}
+            color={colorMode === 'light' ? 'black' : 'white'}
+            size={25}
+          />
         </View>
         <View>
-          <Ionicons name={'notifications-outline'} color="white" size={25} />
+          <Ionicons
+            name={'notifications-outline'}
+            color={colorMode === 'light' ? 'black' : 'white'}
+            size={25}
+          />
         </View>
       </HStack>
       {!isLoadingData ? (
