@@ -13,16 +13,13 @@ import Animated from 'react-native-reanimated';
 interface Props {
   navigation: any;
   item: any;
-  scale?: any;
-  opacity?: any;
 }
 
 const ItemList = (props: Props) => {
-  const { scale, opacity } = props;
   const { colorMode } = useColorMode();
 
   return (
-    <Animated.View style={{ transform: [{ scale }], opacity }}>
+    <Animated.View>
       <Box
         flex={1}
         bg={colorMode === 'light' ? 'coolGray.100' : 'coolGray.700'}
