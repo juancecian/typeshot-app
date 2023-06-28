@@ -8,12 +8,11 @@ import PhotosPage from './ProfilePages/PhotosPage';
 import { useWindowDimensions } from 'react-native';
 import BottomSheetProfile from '../../components/BottomSheetProfile';
 
-const renderScene = SceneMap({
-  first: PostsPage,
-  second: PhotosPage
-});
+interface Props {
+  navigation: any;
+}
 
-const ProfileScreen = () => {
+const ProfileScreen = (props: Props) => {
   const { colorMode } = useColorMode();
   const { user } = useContext(UserContext);
 
@@ -24,6 +23,11 @@ const ProfileScreen = () => {
     { key: 'first', title: 'Publicaciones' },
     { key: 'second', title: 'Fotos' }
   ]);
+
+  const renderScene = SceneMap({
+    first: () => <PostsPage navigation={props.navigation} />,
+    second: PhotosPage
+  });
 
   return (
     <>
