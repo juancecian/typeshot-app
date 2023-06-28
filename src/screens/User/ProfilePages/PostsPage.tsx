@@ -5,6 +5,7 @@ import {
   Heading,
   Menu,
   Pressable,
+  ScrollView,
   Spinner,
   Text,
   VStack,
@@ -19,7 +20,7 @@ import { RefreshControl, TouchableOpacity } from 'react-native';
 import { getPosts } from '../../../core/services/post.service';
 import { Image } from 'expo-image';
 import Animated from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { setStatusBarStyle } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BottomSheetProfile from '../../../components/BottomSheetProfile';
@@ -93,21 +94,21 @@ const PostsPage = (props: Props) => {
   return (
     <>
       <View flex={1} mt="10">
-        <View style={{ position: 'absolute', right: 30 }}>
-          <Ionicons
-            name={colorMode === 'light' ? 'ios-moon' : 'sunny'}
+        <View style={{ position: 'absolute', right: 30, zIndex: 1 }}>
+          <FontAwesome5
+            name="user-plus"
             size={20}
             color={colorMode === 'light' ? 'black' : 'white'}
             onPress={toggleColorMode}
           />
         </View>
 
-        <View style={{ position: 'absolute', left: 30 }}>
+        <View style={{ position: 'absolute', left: 30, zIndex: 1 }}>
           <TouchableOpacity onPress={handleSheet}>
             <HamburgerIcon size={18} />
           </TouchableOpacity>
         </View>
-        <View w="100%" alignItems="center" mt={5}>
+        <View w="100%" alignItems="center">
           <Image
             style={{ width: '50%', height: 200, borderRadius: 100 }}
             source={user?.avatar}
@@ -146,24 +147,7 @@ const PostsPage = (props: Props) => {
               paddingTop: 10
             }}
             renderItem={({ item, index }) => {
-              const inputRange = [-1, 0, 80 * index, 80 * (index + 2)];
-              const opacityInputRange = [-1, 0, 80 * index, 80 * (index + 1)];
-              const scale = scrollY.interpolate({
-                inputRange,
-                outputRange: [1, 1, 1, 0]
-              });
-              const opacity = scrollY.interpolate({
-                inputRange: opacityInputRange,
-                outputRange: [1, 1, 1, 0]
-              });
-              return (
-                <ItemList
-                  item={item}
-                  navigation={props.navigation}
-                  scale={scale}
-                  opacity={opacity}
-                />
-              );
+              return <ItemList item={item} navigation={props.navigation} />;
             }}
             refreshControl={
               <RefreshControl
