@@ -1,27 +1,37 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { UserContext } from '../../context/AppContext';
 import ItemList from '../../components/ItemList';
 import { getPosts } from '../../core/services/post.service';
 import { PostModel } from '../../models/post.model';
-import { RefreshControl, StatusBar } from 'react-native';
+import { RefreshControl } from 'react-native';
 import {
-  FlatList,
-  ScrollView,
   Spinner,
   VStack,
   View,
   useColorMode,
   Text,
   Heading,
-  HStack
+  HStack,
+  Badge,
+  Avatar
 } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
-import BottomSheetProfile from '../../components/BottomSheetProfile';
+import * as Notifications from 'expo-notifications';
+import {
+  collection,
+  getFirestore,
+  onSnapshot,
+  query,
+  where
+} from 'firebase/firestore';
+import { app } from '../../config/firebase.config';
 
 interface Props {
   navigation: any;
 }
+const db = getFirestore(app);
+
 const HomeScreen = (props: Props) => {
   const { user } = useContext(UserContext);
   const { colorMode } = useColorMode();
@@ -30,10 +40,13 @@ const HomeScreen = (props: Props) => {
   const [postsData, setPostsData] = useState<PostModel[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
+  const [haveNotifications, setHaveNotifications] = useState(false);
 
   useEffect(() => {
     setIsLoadingData(true);
     getPostData();
+    getPermissions();
+    listenNotificationEvent();
   }, []);
 
   const getPostData = async () => {
@@ -60,6 +73,48 @@ const HomeScreen = (props: Props) => {
     }
   };
 
+  const getPermissions = async () => {
+    try {
+      const settings = await Notifications.getPermissionsAsync();
+
+      const permission =
+        settings.granted ||
+        settings.ios?.status ===
+          Notifications.IosAuthorizationStatus.PROVISIONAL;
+
+      if (!permission) {
+        await Notifications.requestPermissionsAsync({
+          ios: {
+            allowAlert: true,
+            allowBadge: true,
+            allowSound: true,
+            allowAnnouncements: true
+          }
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const listenNotificationEvent = async () => {
+    try {
+      onSnapshot(
+        query(
+          collection(db, `Users/${user?.id}/notifications`),
+          where('read', '==', false)
+        ),
+        (snapshot) => {
+          if (snapshot.docs.length > 0) {
+            setHaveNotifications(true);
+          } else {
+            setHaveNotifications(false);
+          }
+        }
+      );
+    } catch (error) {}
+  };
+
   return (
     <VStack
       flex={1}
@@ -70,11 +125,18 @@ const HomeScreen = (props: Props) => {
           <HStack
             w="100%"
             mt={20}
+            py={3}
             space={10}
             justifyContent="flex-end"
             right={10}
           >
             <View>
+              <Avatar.Badge
+                position="absolute"
+                bg="red.500"
+                top={0}
+                zIndex={1}
+              />
               <Ionicons
                 name={'chatbubbles-outline'}
                 color={colorMode === 'light' ? 'black' : 'white'}
@@ -82,6 +144,20 @@ const HomeScreen = (props: Props) => {
               />
             </View>
             <View>
+              {haveNotifications && (
+                <Animated.View
+                  entering={FadeIn}
+                  exiting={FadeOut}
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: 10,
+                    zIndex: 1
+                  }}
+                >
+                  <Avatar.Badge bg="red.500" />
+                </Animated.View>
+              )}
               <Ionicons
                 name={'notifications-outline'}
                 color={colorMode === 'light' ? 'black' : 'white'}
@@ -100,24 +176,7 @@ const HomeScreen = (props: Props) => {
               paddingTop: 10
             }}
             renderItem={({ item, index }) => {
-              const inputRange = [-1, 0, 70 * index, 70 * (index + 2)];
-              const opacityInputRange = [-1, 0, 70 * index, 70 * (index + 1)];
-              const scale = scrollY.interpolate({
-                inputRange,
-                outputRange: [1, 1, 1, 0]
-              });
-              const opacity = scrollY.interpolate({
-                inputRange: opacityInputRange,
-                outputRange: [1, 1, 1, 0]
-              });
-              return (
-                <ItemList
-                  item={item}
-                  navigation={props.navigation}
-                  scale={scale}
-                  opacity={opacity}
-                />
-              );
+              return <ItemList item={item} navigation={props.navigation} />;
             }}
             refreshControl={
               <RefreshControl
