@@ -1,8 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import {
   Avatar,
   FormControl,
   HStack,
+  Spinner,
   TextArea,
   VStack,
   View,
@@ -15,6 +16,7 @@ import Toast from '../../components/Toast';
 import { PostModel } from '../../models/post.model';
 import { createPost } from '../../core/services/post.service';
 import Animated from 'react-native-reanimated';
+import { TouchableOpacity } from 'react-native';
 
 interface Props {
   navigation: any;
@@ -24,8 +26,10 @@ const CreateScreen = (props: Props) => {
   const { colorMode } = useColorMode();
   const { user } = useContext(UserContext);
   const toast = useToast();
+  const textPostRef = useRef<any>();
 
   const [textPost, setTextPost] = useState('');
+  const [isPosting, setIsPosting] = useState(false);
 
   const goBackWithAnimation = () => {
     props.navigation.goBack();
@@ -34,6 +38,7 @@ const CreateScreen = (props: Props) => {
   const handleCreatePost = async () => {
     try {
       if (user && textPost.length > 0) {
+        setIsPosting(true);
         let newPost = new PostModel();
         newPost.text = textPost;
         newPost.images = [];
@@ -41,6 +46,7 @@ const CreateScreen = (props: Props) => {
 
         const postPublished = await createPost(newPost);
         if (postPublished) {
+          setTextPost('');
           toast.show({
             placement: 'top',
             render: () => <Toast color="emerald.500" text="Post creado!" />
@@ -50,6 +56,8 @@ const CreateScreen = (props: Props) => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsPosting(false);
     }
   };
 
@@ -64,17 +72,25 @@ const CreateScreen = (props: Props) => {
             <FontAwesome
               name={'close'}
               onPress={goBackWithAnimation}
-              color="white"
+              color={colorMode === 'light' ? 'black' : 'white'}
               size={20}
             />
           </View>
           <View>
-            <FontAwesome
-              name={'send'}
+            <TouchableOpacity
+              disabled={textPost.length === 0}
               onPress={handleCreatePost}
-              color="white"
-              size={20}
-            />
+            >
+              {!isPosting ? (
+                <FontAwesome
+                  name={'send'}
+                  color={colorMode === 'light' ? 'black' : 'white'}
+                  size={20}
+                />
+              ) : (
+                <Spinner size="sm" />
+              )}
+            </TouchableOpacity>
           </View>
         </HStack>
         <HStack mt="10%" ml="3">
@@ -87,11 +103,12 @@ const CreateScreen = (props: Props) => {
           <VStack w="90%">
             <FormControl>
               <TextArea
+                ref={textPostRef}
+                value={textPost}
                 autoCompleteType
                 placeholder="¿En qué piensas?.."
                 borderWidth={0}
                 h="80%"
-                color="white"
                 placeholderTextColor="#737373"
                 bgColor="transparent"
                 onChangeText={(text) => setTextPost(text)}
