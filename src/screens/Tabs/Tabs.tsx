@@ -59,8 +59,7 @@ const Tabs = () => {
           },
           tabBarActiveTintColor: colorMode === 'light' ? 'black' : 'white',
           tabBarInactiveTintColor: 'gray',
-          tabBarLabel: '',
-          unmountOnBlur: true
+          tabBarLabel: ''
         }}
       />
       <Tab.Screen
