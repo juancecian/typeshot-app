@@ -6,7 +6,8 @@ import {
   getBytes,
   getStorage,
   getBlob,
-  getDownloadURL
+  getDownloadURL,
+  getMetadata
 } from 'firebase/storage';
 import * as FileSystem from 'expo-file-system';
 
@@ -15,20 +16,27 @@ const db = getFirestore(app);
 export const getUserById = (userid: string): Promise<UserModel> => {
   return new Promise(async (resolve, reject) => {
     try {
+      let uriImage =
+        'https://firebasestorage.googleapis.com/v0/b/socialmedia-2d504.appspot.com/o/images%2Fnophoto.png?alt=media&token=9bb43f04-f332-4198-a6af-fb2f4e3f35cc';
+
       const userCol = collection(db, `Users/${userid}/user_information`);
-      const gsReference = ref(
-        getStorage(),
-        `gs://socialmedia-2d504.appspot.com/images/${userid}/avatar.jpg`
-      );
-      const uriImage = await getDownloadURL(gsReference);
-      const { uri } = await FileSystem.downloadAsync(
+      const sref = getStorage(app, 'gs://socialmedia-2d504.appspot.com');
+
+      getDownloadURL(ref(sref, `/images/${userid}/avatar.jpg`))
+        .then((imgUri) => {
+          uriImage = imgUri;
+        })
+        .catch((error) => {});
+
+      const fileSystem = await FileSystem.downloadAsync(
         uriImage,
-        FileSystem.documentDirectory + 'imagen.jpg'
+        `${FileSystem.documentDirectory}`
       );
+
       const userSnapshot = await getDocs(userCol);
       userSnapshot.docs.map((doc) => {
         let user = doc.data() as UserModel;
-        user.avatar = uri;
+        user.avatar = fileSystem.uri;
         resolve(user);
       });
     } catch (error) {

@@ -111,7 +111,12 @@ const PostsPage = (props: Props) => {
         </View>
         <View w="100%" alignItems="center">
           <Image
-            style={{ width: '50%', height: 200, borderRadius: 100 }}
+            style={{
+              width: '50%',
+              height: 200,
+              borderRadius: 100,
+              backgroundColor: 'black'
+            }}
             source={props.user.avatar}
             contentFit="cover"
           />
@@ -138,6 +143,9 @@ const PostsPage = (props: Props) => {
           <Animated.FlatList
             data={postsData}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <Text textAlign="center">No se han encontrado publicaciones</Text>
+            }
             onScroll={Animated.event(
               [{ nativeEvent: { contentOffset: { y: scrollY } } }],
               { useNativeDriver: true }
