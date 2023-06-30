@@ -1,3 +1,5 @@
+import { StepsEnum } from '../enums/steps.enum';
+
 interface Birthday {
   day: number;
   month: number;
@@ -16,7 +18,7 @@ export class UserModel {
   avatar?: string = '';
   biographyInfo: string = '';
   birthday?: Birthday;
-  currentStep = 1;
+  currentStep: StepsEnum = StepsEnum.PROFILE_PHOTO_COMPLETE;
   emailVerified: boolean = false;
   followers: number = 0;
   following: number = 0;

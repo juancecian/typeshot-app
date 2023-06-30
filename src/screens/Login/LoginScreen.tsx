@@ -12,7 +12,8 @@ import {
   View,
   KeyboardAvoidingView,
   useColorMode,
-  Spinner
+  Spinner,
+  useToast
 } from 'native-base';
 import Animated, { FadeIn, color } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,6 +26,7 @@ import { validateEmailData } from '../../config/validations.config';
 import { EmailEnum } from '../../enums/email.enum';
 import { updateUser } from '../../redux/reducers/user.reducer';
 import store from '../../redux/store';
+import Toast from '../../components/Toast';
 
 interface Props {
   navigation: any;
@@ -37,6 +39,7 @@ const LoginScreen = (props: Props) => {
   const [pressedBtn, setPressedBtn] = useState(false);
 
   const { colorMode, toggleColorMode } = useColorMode();
+  const toast = useToast();
 
   const saveColorMode = async () => {
     try {
@@ -57,6 +60,19 @@ const LoginScreen = (props: Props) => {
           email,
           pwd
         );
+        if (!authenticated.user.emailVerified) {
+          return toast.show({
+            placement: 'top',
+            duration: 5000,
+            render: () => (
+              <Toast
+                color="red.500"
+                text="Tu cuenta tiene una verificación de correo pendiente."
+                textColor="white"
+              />
+            )
+          });
+        }
         if (authenticated) {
           const userData = await getUserById(authenticated.user.uid);
           if (userData) {

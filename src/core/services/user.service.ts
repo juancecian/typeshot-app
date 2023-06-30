@@ -1,5 +1,5 @@
 import { UserModel } from '../../models/user.model';
-import { collection, getDocs, getFirestore } from 'firebase/firestore';
+import { addDoc, collection, getDocs, getFirestore } from 'firebase/firestore';
 import { app } from '../../config/firebase.config';
 import {
   ref,
@@ -31,6 +31,34 @@ export const getUserById = (userid: string): Promise<UserModel> => {
         user.avatar = uri;
         resolve(user);
       });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export const createAccount = (data: UserModel): Promise<boolean> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const userCol = collection(db, `Users/${data.id}/user_information`);
+      const userSnapshot = await addDoc(userCol, {
+        id: data.id,
+        name: data.name,
+        username: data.username,
+        email: data.email,
+        emailVerified: false,
+        birthday: { day: 0, month: 0, year: 0 },
+        isNewbie: true,
+        isOnline: false,
+        loginStatus: { status: false, token: '' },
+        followers: 0,
+        following: 0,
+        currentStep: 1,
+        biographyInfo: ''
+      });
+      if (userSnapshot.id) {
+        resolve(true);
+      }
     } catch (error) {
       reject(error);
     }

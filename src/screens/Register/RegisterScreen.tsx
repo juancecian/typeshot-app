@@ -7,7 +7,8 @@ import {
   ScrollView,
   Stack,
   VStack,
-  useColorMode
+  useColorMode,
+  useToast
 } from 'native-base';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
@@ -18,9 +19,22 @@ import {
 } from '../../config/validations.config';
 import { EmailEnum } from '../../enums/email.enum';
 import { PasswordEnum } from '../../enums/password.enum';
+import { UserModel } from '../../models/user.model';
+import { createAccount } from '../../core/services/user.service';
+import Toast from '../../components/Toast';
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification
+} from 'firebase/auth';
+import { auth } from '../../config/firebase.config';
 
-const RegisterScreen = () => {
+interface Props {
+  navigation: any;
+}
+
+const RegisterScreen = (props: Props) => {
   const { colorMode } = useColorMode();
+  const toast = useToast();
 
   const [name, setName] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -29,6 +43,7 @@ const RegisterScreen = () => {
   const [email, setEmail] = useState<string | null>(null);
   const [validEmail, setValidEmail] = useState(EmailEnum.INITIALIZE_VALUE);
   const [pressedBtn, setPressedBtn] = useState(false);
+  const [isValidForm, setIsValidForm] = useState(false);
 
   const validateEmail = (email: string) => {
     const emailStatus = validateEmailData(email);
@@ -42,6 +57,61 @@ const RegisterScreen = () => {
       setValidPwd(pwdStatus);
     }
   };
+
+  const validateForm = () => {
+    name &&
+    name.length &&
+    username &&
+    username.length &&
+    validPwd === PasswordEnum.VALID_PASS &&
+    validEmail === EmailEnum.VALID_EMAIL
+      ? setIsValidForm(true)
+      : setIsValidForm(false);
+  };
+
+  const handleCreateAccount = async () => {
+    if (name && pwd && username && email && isValidForm) {
+      try {
+        setPressedBtn(true);
+        const createFirebaseAcc = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          pwd
+        );
+        if (createFirebaseAcc.user) {
+          let usernew = new UserModel();
+          usernew.id = createFirebaseAcc.user.uid;
+          usernew.name = name;
+          usernew.username = username;
+          usernew.email = email;
+          const accountCreated = await createAccount(usernew);
+          if (accountCreated) {
+            await sendEmailVerification(createFirebaseAcc.user);
+            props.navigation.navigate('Login');
+            toast.show({
+              placement: 'top',
+              duration: 5000,
+              render: () => (
+                <Toast
+                  color="emerald.500"
+                  text="Cuenta creada con éxito, sin embargo, necesitamos que valides tu correo electrónico. Te hemos enviado un mail con los pasos a seguir."
+                  textColor="white"
+                />
+              )
+            });
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setPressedBtn(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    validateForm();
+  }, [name, username, validPwd, validEmail]);
 
   return (
     <KeyboardAvoidingView
@@ -160,9 +230,10 @@ const RegisterScreen = () => {
                 mx="auto"
                 size="sm"
                 variant="solid"
-                isDisabled={pressedBtn}
+                isDisabled={pressedBtn || !isValidForm}
                 isLoading={pressedBtn}
                 isLoadingText="Cargando"
+                onPress={handleCreateAccount}
               >
                 CREAR CUENTA
               </Button>

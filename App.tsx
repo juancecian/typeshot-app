@@ -5,7 +5,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './src/screens/Login/LoginScreen';
 import RegisterScreen from './src/screens/Register/RegisterScreen';
-import { AppContext } from './src/context/AppContext';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeScreen from './src/screens/Home/HomeScreen';
@@ -51,6 +50,13 @@ export default function App() {
     try {
       auth.onAuthStateChanged(async (idToken) => {
         if (idToken) {
+          if (!idToken.emailVerified) {
+            return;
+          }
+          console.log(
+            'Se salta la verificacion del coreo, ',
+            idToken.emailVerified
+          );
           const tokenResult = await idToken.getIdTokenResult();
           if (tokenResult.token) {
             const user = await getUserById(idToken.uid);
@@ -73,50 +79,48 @@ export default function App() {
       <>
         <StatusBar style="inverted" />
         <NavigationContainer>
-          <AppContext>
-            <Provider store={store}>
-              <NativeBaseProvider
-                theme={extendTheme({
-                  config: {
-                    initialColorMode: initialMode
-                  }
-                })}
-              >
-                {!isLoading && initialRoute.length ? (
-                  <Stack.Navigator initialRouteName={initialRoute}>
-                    <Stack.Screen
-                      name="Login"
-                      component={LoginScreen}
-                      options={{ headerShown: false }}
-                    />
+          <Provider store={store}>
+            <NativeBaseProvider
+              theme={extendTheme({
+                config: {
+                  initialColorMode: initialMode
+                }
+              })}
+            >
+              {!isLoading && initialRoute.length ? (
+                <Stack.Navigator initialRouteName={initialRoute}>
+                  <Stack.Screen
+                    name="Login"
+                    component={LoginScreen}
+                    options={{ headerShown: false }}
+                  />
 
-                    <Stack.Screen
-                      name="Tabs"
-                      component={Tabs}
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="Register"
-                      component={RegisterScreen}
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="CompleteProfile"
-                      component={CompleteProfileScreen}
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="Home"
-                      component={HomeScreen}
-                      options={{ headerShown: false, gestureEnabled: false }}
-                    />
-                  </Stack.Navigator>
-                ) : (
-                  <ScreenLoader />
-                )}
-              </NativeBaseProvider>
-            </Provider>
-          </AppContext>
+                  <Stack.Screen
+                    name="Tabs"
+                    component={Tabs}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="Register"
+                    component={RegisterScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="CompleteProfile"
+                    component={CompleteProfileScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="Home"
+                    component={HomeScreen}
+                    options={{ headerShown: false, gestureEnabled: false }}
+                  />
+                </Stack.Navigator>
+              ) : (
+                <ScreenLoader />
+              )}
+            </NativeBaseProvider>
+          </Provider>
         </NavigationContainer>
       </>
     )

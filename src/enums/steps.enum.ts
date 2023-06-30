@@ -1,0 +1,6 @@
+export enum StepsEnum {
+  PROFILE_COMPLETED = -1,
+  PROFILE_PHOTO_COMPLETE = 1,
+  BIRTHDAY_COMPLETE = 2,
+  BIO_COMPLETE = 3
+}
