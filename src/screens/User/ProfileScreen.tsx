@@ -1,12 +1,12 @@
 import { VStack, useColorMode } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import Animated from 'react-native-reanimated';
-import { UserContext } from '../../context/AppContext';
 import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
 import PostsPage from './ProfilePages/PostsPage';
 import PhotosPage from './ProfilePages/PhotosPage';
 import { useWindowDimensions } from 'react-native';
-import BottomSheetProfile from '../../components/BottomSheetProfile';
+import { useSelector } from 'react-redux';
+import rootReducer from '../../redux/rootReducer';
 
 interface Props {
   navigation: any;
@@ -14,7 +14,9 @@ interface Props {
 
 const ProfileScreen = (props: Props) => {
   const { colorMode } = useColorMode();
-  const { user } = useContext(UserContext);
+  const user = useSelector(
+    (state: ReturnType<typeof rootReducer>) => state.user
+  );
 
   const layout = useWindowDimensions();
 
@@ -25,7 +27,7 @@ const ProfileScreen = (props: Props) => {
   ]);
 
   const renderScene = SceneMap({
-    first: () => <PostsPage navigation={props.navigation} />,
+    first: () => <PostsPage navigation={props.navigation} user={user} />,
     second: PhotosPage
   });
 

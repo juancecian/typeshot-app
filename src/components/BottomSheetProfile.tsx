@@ -1,10 +1,9 @@
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { View, Text } from 'native-base';
-import React, { useCallback, useContext, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { auth } from '../config/firebase.config';
-import { RedirectContext } from '../context/AppContext';
 import { CommonActions } from '@react-navigation/native';
 
 interface Props {
@@ -14,7 +13,6 @@ interface Props {
 
 const BottomSheetProfile = (props: Props) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const { onRedirectRouteChange } = useContext(RedirectContext);
   // variables
   const snapPoints = useMemo(() => ['30%', '50%'], []);
 

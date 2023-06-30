@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { UserContext } from '../../context/AppContext';
 import ItemList from '../../components/ItemList';
 import { getPosts } from '../../core/services/post.service';
 import { PostModel } from '../../models/post.model';
@@ -26,6 +25,9 @@ import {
   where
 } from 'firebase/firestore';
 import { app } from '../../config/firebase.config';
+import { useSelector } from 'react-redux';
+import rootReducer from '../../redux/rootReducer';
+import ScreenLoader from '../../components/ScreenLoader';
 
 interface Props {
   navigation: any;
@@ -33,7 +35,9 @@ interface Props {
 const db = getFirestore(app);
 
 const HomeScreen = (props: Props) => {
-  const { user } = useContext(UserContext);
+  const user = useSelector(
+    (state: ReturnType<typeof rootReducer>) => state.user
+  );
   const { colorMode } = useColorMode();
   const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -187,16 +191,7 @@ const HomeScreen = (props: Props) => {
           />
         </>
       ) : (
-        <VStack flex={1} justifyContent="center" alignItems="center">
-          <Spinner size="lg" mt={5} />
-          <Heading
-            color={colorMode === 'light' ? 'muted.800' : 'muted.200'}
-            fontSize="md"
-            fontWeight={600}
-          >
-            Cargando información..
-          </Heading>
-        </VStack>
+        <ScreenLoader />
       )}
     </VStack>
   );

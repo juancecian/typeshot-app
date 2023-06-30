@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Avatar,
   FormControl,
@@ -10,13 +10,14 @@ import {
   useColorMode,
   useToast
 } from 'native-base';
-import { UserContext } from '../../context/AppContext';
 import { FontAwesome } from '@expo/vector-icons';
 import Toast from '../../components/Toast';
 import { PostModel } from '../../models/post.model';
 import { createPost } from '../../core/services/post.service';
 import Animated from 'react-native-reanimated';
 import { TouchableOpacity } from 'react-native';
+import { useSelector } from 'react-redux';
+import rootReducer from '../../redux/rootReducer';
 
 interface Props {
   navigation: any;
@@ -24,7 +25,9 @@ interface Props {
 
 const CreateScreen = (props: Props) => {
   const { colorMode } = useColorMode();
-  const { user } = useContext(UserContext);
+  const user = useSelector(
+    (state: ReturnType<typeof rootReducer>) => state.user
+  );
   const toast = useToast();
   const textPostRef = useRef<any>();
 

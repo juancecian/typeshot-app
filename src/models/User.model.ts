@@ -13,7 +13,7 @@ export class UserModel {
   name: string = '';
   username: string = '';
   email: string = '';
-  avatar: string = '';
+  avatar?: string = '';
   biographyInfo: string = '';
   birthday?: Birthday;
   currentStep = 1;
