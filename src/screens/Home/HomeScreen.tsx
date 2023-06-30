@@ -28,6 +28,7 @@ import { app } from '../../config/firebase.config';
 import { useSelector } from 'react-redux';
 import rootReducer from '../../redux/rootReducer';
 import ScreenLoader from '../../components/ScreenLoader';
+import { getUsersFollowers } from '../../core/services/user.service';
 
 interface Props {
   navigation: any;
@@ -55,10 +56,8 @@ const HomeScreen = (props: Props) => {
 
   const getPostData = async () => {
     try {
-      const data = await getPosts([
-        'kHeFgCTO4ZQezSDoCo3jjlRA66V2',
-        'mDENoF9xUKRYgXzSz2s3wO4HA823'
-      ]);
+      const followingUsersId = await getUsersFollowers(user.id);
+      const data = await getPosts(followingUsersId);
       setPostsData(data);
     } catch (error) {
       console.log(error);
@@ -175,6 +174,9 @@ const HomeScreen = (props: Props) => {
               [{ nativeEvent: { contentOffset: { y: scrollY } } }],
               { useNativeDriver: true }
             )}
+            ListEmptyComponent={
+              <Text textAlign="center">No hay publicaciones para mostrar</Text>
+            }
             contentContainerStyle={{
               padding: 10,
               paddingTop: 10

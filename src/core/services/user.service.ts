@@ -1,5 +1,12 @@
 import { UserModel } from '../../models/user.model';
-import { addDoc, collection, getDocs, getFirestore } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  getDocs,
+  getFirestore,
+  query,
+  where
+} from 'firebase/firestore';
 import { app } from '../../config/firebase.config';
 import {
   ref,
@@ -67,6 +74,26 @@ export const createAccount = (data: UserModel): Promise<boolean> => {
       if (userSnapshot.id) {
         resolve(true);
       }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export const getUsersFollowers = async (userid: string): Promise<string[]> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let followersId: string[] = [];
+      const userCol = query(
+        collection(db, 'Relationship'),
+        where('follower', '==', userid)
+      );
+      const userSnapshot = await getDocs(userCol);
+      userSnapshot.docs.forEach((usr) => {
+        followersId.push(usr.data().following);
+      });
+      followersId.push(userid);
+      resolve(followersId);
     } catch (error) {
       reject(error);
     }
