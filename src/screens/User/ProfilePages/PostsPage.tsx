@@ -12,9 +12,8 @@ import {
   View,
   useColorMode
 } from 'native-base';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PostModel } from '../../../models/post.model';
-import { UserContext } from '../../../context/AppContext';
 import ItemList from '../../../components/ItemList';
 import { RefreshControl, TouchableOpacity } from 'react-native';
 import { getPosts } from '../../../core/services/post.service';
@@ -24,13 +23,15 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { setStatusBarStyle } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BottomSheetProfile from '../../../components/BottomSheetProfile';
+import { UserModel } from '../../../models/user.model';
+import ScreenLoader from '../../../components/ScreenLoader';
 
 interface Props {
   navigation: any;
+  user: UserModel;
 }
 
 const PostsPage = (props: Props) => {
-  const { user } = useContext(UserContext);
   const { colorMode, toggleColorMode } = useColorMode();
   const scrollY = useRef(new Animated.Value(0)).current;
 
@@ -41,8 +42,8 @@ const PostsPage = (props: Props) => {
 
   const getPostData = async () => {
     try {
-      if (user) {
-        const data = await getPosts([user.id]);
+      if (props.user) {
+        const data = await getPosts([props.user.id]);
         setPostsData(data);
       }
     } catch (error) {
@@ -111,25 +112,24 @@ const PostsPage = (props: Props) => {
         <View w="100%" alignItems="center">
           <Image
             style={{ width: '50%', height: 200, borderRadius: 100 }}
-            source={user?.avatar}
+            source={props.user.avatar}
             contentFit="cover"
-            transition={1000}
           />
-          <Heading mt={5}>{user?.name}</Heading>
+          <Heading mt={5}>{props.user.name}</Heading>
           <Heading color="gray.500" size="xs">
-            @{user?.username}
+            @{props.user.username}
           </Heading>
         </View>
         <HStack w="100%" px="20" py={5} justifyContent="space-between">
           <View>
             <Heading textAlign="center" fontSize={15}>
-              {user?.following}
+              {props.user.following}
             </Heading>
             <Text color="gray.500">siguiendo</Text>
           </View>
           <View>
             <Heading textAlign="center" fontSize={15}>
-              {user?.followers}
+              {props.user.followers}
             </Heading>
             <Text color="gray.500">seguidores</Text>
           </View>
@@ -157,12 +157,7 @@ const PostsPage = (props: Props) => {
             }
           />
         ) : (
-          <VStack flex={1} justifyContent="center" alignItems="center">
-            <Spinner size="sm" />
-            <Heading mt="5" fontSize="15">
-              Cargando información..
-            </Heading>
-          </VStack>
+          <ScreenLoader />
         )}
         {isSheetOpened && (
           <BottomSheetProfile

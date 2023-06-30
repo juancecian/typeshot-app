@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image } from 'expo-image';
 import {
   Avatar,
@@ -12,12 +12,15 @@ import {
   View
 } from 'native-base';
 import { Dimensions, RefreshControl } from 'react-native';
-import { UserContext } from '../../../context/AppContext';
 import { getPosts } from '../../../core/services/post.service';
 import { PostModel } from '../../../models/post.model';
+import { UserModel } from '../../../models/user.model';
 
-const PhotosPage = () => {
-  const { user } = useContext(UserContext);
+interface Props {
+  user: UserModel;
+}
+
+const PhotosPage = (props: Props) => {
   const { width, height } = Dimensions.get('window');
 
   const [isLoadingData, setIsLoadingData] = useState(false);
@@ -30,8 +33,8 @@ const PhotosPage = () => {
 
   const getPostData = async () => {
     try {
-      if (user) {
-        const data = await getPosts([user.id]);
+      if (props.user) {
+        const data = await getPosts([props.user.id]);
         let filterPosts = data.filter((post) => post.images.length > 0);
         setPostsData(filterPosts);
       }
@@ -82,7 +85,7 @@ const PhotosPage = () => {
                 <Avatar
                   size="48px"
                   source={{
-                    uri: user?.avatar
+                    uri: props.user.avatar
                   }}
                 />
                 <VStack w="80%">
@@ -94,7 +97,7 @@ const PhotosPage = () => {
                     bold
                     isTruncated={true}
                   >
-                    {user?.username}
+                    {props.user.username}
                   </Text>
                   <Text
                     color="coolGray.600"
